@@ -1,10 +1,12 @@
 clc;clear;close all;
 %membaca gambar
-image_folder = 'C:\Users\Xatalie\Documents\Project PCD\data training';
+image_folder = 'C:\Users\Xatalie\Documents\Project PCD\data uji';
 filenames = dir(fullfile(image_folder, '*.jpg'));
 total_images = numel(filenames);
-
 Z1=[];
+bagus=0;
+rusak=0;
+xsvm="";
 for n = 1:total_images
   full_name= fullfile(image_folder, filenames(n).name);
   our_images = imread(full_name);
@@ -19,7 +21,7 @@ maximg = max(max(img));
 %panjang dan lebar gambar(pixel)
 [panjang,lebar]=size(img);
 %membuat matriks kosong sejumlah 4
-matrikskosong=zeros(maximg,maximg,4);
+matrikskosong=zeros(maximg,maximg,4);   
 %glcm 0 derajat
 for k =1:panjang
     for l=1:lebar-1
@@ -240,8 +242,31 @@ display(energy135);
 energym=(energy0+energy45+energy90+energy135)/4;
 display(energym);
 %menyimpan data training ke excel
-
+Z1=[];
 Z=[kontrast0 kontrast45 kontrast90 kontrast135 entropy0 entropy45 entropy90 entropy135 homogenitas0 homogenitas45 homogenitas90 homogenitas135 energy0 energy45 energy90 energy135];
 Z1=[Z1;Z];
+xlswrite('datatest',Z1);
+
+%klasifikasi
+training1 = xlsread('datatraining');
+target = training1(:,17);
+training = [training1(:,1) training1(:,2) training1(:,3) training1(:,4) training1(:,5) training1(:,6) training1(:,7) training1(:,8) training1(:,9) training1(:,10) training1(:,11) training1(:,12) training1(:,13) training1(:,14) training1(:,15) training1(:,16)];
+svm=svmtrain(training,target,'showplot',true);
+%testing
+hasilsvm=svmclassify(svm,Z,'showplot',true);
+
+
+if hasilsvm==0
+    xsvm='Kembang kol bagus';
+    
+    bagus = bagus + 1;
+elseif hasilsvm==1
+    xsvm='Kembang kol Rusak';
+    
+    rusak = rusak + 1;
 end
-xlswrite('datatraining',Z1);
+
+end
+persen=((bagus+rusak)/total_images)*100;
+display("Persentase: "+persen+" %");
+xlswrite('datapersentase',Z1);

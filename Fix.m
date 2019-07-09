@@ -2,7 +2,11 @@ clc;clear;close all;
 %membaca gambar
 [a,b]=uigetfile({'*.*','All files (*.*)'});
 img = imread([b,a]);
+figure, imshow(img);
 img = 0.2989 * img(:,:,1) + 0.5870 * img(:,:,2) + 0.1140 * img(:,:,3);
+figure, imshow(img);
+img=histeq(img);
+figure, imshow(img);
 %kondisi jika nilai matriks ada 0 semua di tambah 1
 if(min(min(img)) == 0)
     img = img + 1;
@@ -245,10 +249,7 @@ training = [training1(:,1) training1(:,2) training1(:,3) training1(:,4) training
 svm=svmtrain(training,target,'showplot',true);
 %testing
 hasilsvm=svmclassify(svm,Z,'showplot',true);
-hold on;
-plot(Z,'ro','MarkerSize',12);
-plot(training,'o','MarkerSize',12);
-hold off
+
 
 if hasilsvm==0
     xsvm='Kembang kol bagus';
@@ -257,3 +258,4 @@ elseif hasilsvm==1
     xsvm='Kembang kol Rusak';
     display(xsvm);
 end
+
